@@ -59,7 +59,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 sensitivity = [0.5] * len(models)
 detector = HotwordDetector(models, sensitivity=sensitivity)
-callbacks = [detected, detected]
+callbacks = [detected, ] * len(models)
 print('Listening... Press Ctrl+C to exit')
 
 # main loop
