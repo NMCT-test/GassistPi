@@ -19,7 +19,7 @@ GPIO.setup(22, GPIO.OUT)
 GPIO.output(22, GPIO.LOW)
 
 # Add your custom models here
-models = ['src/resources/alexa.umdl', 'src/resources/snowboy.umdl', 'src/resources/NMCT.umdl']
+models = ['src/resources/alexa.umdl', 'src/resources/snowboy.umdl', 'src/resources/NMCT.pmdl']
 
 
 def signal_handler(signal, frame):
