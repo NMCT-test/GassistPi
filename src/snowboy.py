@@ -1,11 +1,12 @@
-from .snowboydecoder import HotwordDetector, play_audio_file, DETECT_DING, DETECT_DONG
+from snowboydecoder import HotwordDetector, play_audio_file, DETECT_DING, DETECT_DONG
 import sys
 import signal
 import RPi.GPIO as GPIO
 import time
 import os
 import subprocess
-from .assistant import Assistant
+from assistant import Assistant
+from neopixel import PixelRing, Color
 
 subprocess.Popen(["aplay", "/home/pi/GassistPi/sample-audio-files/customwakeword.wav"], stdin=subprocess.PIPE,
                  stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -18,7 +19,7 @@ GPIO.setup(22, GPIO.OUT)
 GPIO.output(22, GPIO.LOW)
 
 # Add your custom models here
-models = ['/home/pi/GassistPi/src/resources/alexa.umdl', '/home/pi/GassistPi/src/resources/snowboy.umdl']
+models = ['src/resources/alexa.umdl', 'src/resources/snowboy.umdl', 'src/resources/NMCT.umdl']
 
 
 def signal_handler(signal, frame):
@@ -35,6 +36,9 @@ def interrupt_callback():
 ##    print("Error: need to specify 2 model names")
 ##    print("Usage: python demo.py 1st.model 2nd.model")
 ##    sys.exit(-1)
+
+npr = PixelRing()
+npr.chase(Color(0, 0, 255))
 gassist = Assistant()
 
 
