@@ -17,7 +17,7 @@ GPIO.setwarnings(False)
 # Number of entities in 'var' and 'PINS' should be the same
 var = (
 'kitchen lights', 'bathroom lights', 'bedroom lights')  # Add whatever names you want. This is case is insensitive
-gpio = (12, 13, 24)  # GPIOS for 'var'. Add other GPIOs that you want
+gpio = (13, 13, 24)  # GPIOS for 'var'. Add other GPIOs that you want
 
 # Number of station names and station links should be the same
 stnname = ('Radio One', 'Radio 2', 'Radio 3', 'Radio 5')  # Add more stations if you want

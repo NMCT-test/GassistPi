@@ -38,7 +38,6 @@ from actions import ESP
 from actions import track
 from actions import feed
 
-
 try:
     from googlesamples.assistant.grpc import (
         assistant_helpers,
@@ -48,19 +47,17 @@ except SystemError:
     import assistant_helpers
     import audio_helpers
 
-
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-#Indicator pins declaration
+# Indicator pins declaration
 GPIO.setup(25, GPIO.OUT)
-GPIO.setup(5,GPIO.OUT)
-GPIO.setup(6,GPIO.OUT)
+GPIO.setup(5, GPIO.OUT)
+GPIO.setup(6, GPIO.OUT)
 GPIO.output(5, GPIO.LOW)
 GPIO.output(6, GPIO.LOW)
-led=GPIO.PWM(25,1)
+led = GPIO.PWM(25, 1)
 led.start(0)
-
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 END_OF_UTTERANCE = embedded_assistant_pb2.ConverseResponse.END_OF_UTTERANCE
@@ -69,14 +66,13 @@ CLOSE_MICROPHONE = embedded_assistant_pb2.ConverseResult.CLOSE_MICROPHONE
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 
 
-
 class Assistant():
     def __init__(self):
         self.api_endpoint = ASSISTANT_API_ENDPOINT
         self.credentials = os.path.join(click.get_app_dir('google-oauthlib-tool'),
-                                   'credentials.json')
+                                        'credentials.json')
         # Setup logging.
-        logging.basicConfig() # filename='assistant.log', level=logging.DEBUG if self.verbose else logging.INFO)
+        logging.basicConfig()  # filename='assistant.log', level=logging.DEBUG if self.verbose else logging.INFO)
         self.logger = logging.getLogger("assistant")
         self.logger.setLevel(logging.DEBUG)
 
@@ -84,7 +80,7 @@ class Assistant():
         try:
             with open(self.credentials, 'r') as f:
                 self.credentials = google.oauth2.credentials.Credentials(token=None,
-                                                                    **json.load(f))
+                                                                         **json.load(f))
                 self.http_request = google.auth.transport.requests.Request()
                 self.credentials.refresh(self.http_request)
         except Exception as e:
@@ -124,21 +120,21 @@ class Assistant():
         # Configure audio source and sink.
         self.audio_device = None
         self.audio_source = self.audio_device = (
-            self.audio_device or audio_helpers.SoundDeviceStream(
-                sample_rate=self.audio_sample_rate,
-                sample_width=self.audio_sample_width,
-                block_size=self.audio_block_size,
-                flush_size=self.audio_flush_size
-            )
+                self.audio_device or audio_helpers.SoundDeviceStream(
+            sample_rate=self.audio_sample_rate,
+            sample_width=self.audio_sample_width,
+            block_size=self.audio_block_size,
+            flush_size=self.audio_flush_size
+        )
         )
 
         self.audio_sink = self.audio_device = (
-            self.audio_device or audio_helpers.SoundDeviceStream(
-                sample_rate=self.audio_sample_rate,
-                sample_width=self.audio_sample_width,
-                block_size=self.audio_block_size,
-                flush_size=self.audio_flush_size
-            )
+                self.audio_device or audio_helpers.SoundDeviceStream(
+            sample_rate=self.audio_sample_rate,
+            sample_width=self.audio_sample_width,
+            block_size=self.audio_block_size,
+            flush_size=self.audio_flush_size
+        )
         )
 
         # Create conversation stream with the given audio source and sink.
@@ -153,9 +149,10 @@ class Assistant():
         try:
             while continue_conversation:
                 continue_conversation = False
-                subprocess.Popen(["aplay", "/home/pi/GassistPi/sample-audio-files/Fb.wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                subprocess.Popen(["aplay", "/home/pi/GassistPi/sample-audio-files/Fb.wav"], stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 self.conversation_stream.start_recording()
-                GPIO.output(5,GPIO.HIGH)
+                GPIO.output(5, GPIO.HIGH)
                 led.ChangeDutyCycle(100)
                 self.logger.info('Recording audio request.')
 
@@ -175,11 +172,11 @@ class Assistant():
                         break
                     if resp.event_type == END_OF_UTTERANCE:
                         self.logger.info('End of audio request detected')
-                        GPIO.output(5,GPIO.LOW)
+                        GPIO.output(5, GPIO.LOW)
                         led.ChangeDutyCycle(0)
                         self.conversation_stream.stop_recording()
                     if resp.result.spoken_request_text:
-                        usrcmd=resp.result.spoken_request_text
+                        usrcmd = resp.result.spoken_request_text
                         if 'trigger' in str(usrcmd).lower():
                             Action(str(usrcmd).lower())
                             return continue_conversation
@@ -198,15 +195,16 @@ class Assistant():
                         if 'parcel'.lower() in str(usrcmd).lower():
                             track()
                             return continue_conversation
-                        if 'news'.lower() in str(usrcmd).lower() or 'feed'.lower() in str(usrcmd).lower() or 'quote'.lower() in str(usrcmd).lower():
+                        if 'news'.lower() in str(usrcmd).lower() or 'feed'.lower() in str(
+                                usrcmd).lower() or 'quote'.lower() in str(usrcmd).lower():
                             feed(str(usrcmd).lower())
                             return continue_conversation
                         else:
                             continue
                         self.logger.info('Transcript of user request: "%s".',
-                                     resp.result.spoken_request_text)
-                        GPIO.output(5,GPIO.LOW)
-                        GPIO.output(6,GPIO.HIGH)
+                                         resp.result.spoken_request_text)
+                        GPIO.output(5, GPIO.LOW)
+                        GPIO.output(6, GPIO.HIGH)
                         led.ChangeDutyCycle(50)
                         self.logger.info('Playing assistant response.')
                     if len(resp.audio_out.audio_data) > 0:
@@ -223,13 +221,13 @@ class Assistant():
                         self.logger.info('Volume should be set to %s%%', volume_percentage)
                     if resp.result.microphone_mode == DIALOG_FOLLOW_ON:
                         continue_conversation = True
-                        GPIO.output(6,GPIO.LOW)
-                        GPIO.output(5,GPIO.HIGH)
+                        GPIO.output(6, GPIO.LOW)
+                        GPIO.output(5, GPIO.HIGH)
                         led.ChangeDutyCycle(100)
                         self.logger.info('Expecting follow-on query from user.')
                 self.logger.info('Finished playing assistant response.')
-                GPIO.output(6,GPIO.LOW)
-                GPIO.output(5,GPIO.LOW)
+                GPIO.output(6, GPIO.LOW)
+                GPIO.output(5, GPIO.LOW)
                 led.ChangeDutyCycle(0)
                 self.conversation_stream.stop_playback()
         except Exception as e:
@@ -261,7 +259,6 @@ class Assistant():
 
     @retry(reraise=True, stop=stop_after_attempt(3),
            retry=retry_if_exception(is_grpc_error_unavailable))
-
     # This generator yields ConverseRequest to send to the gRPC
     # Google Assistant API.
     def gen_converse_requests(self):
