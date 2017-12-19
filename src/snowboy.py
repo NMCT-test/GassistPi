@@ -37,8 +37,8 @@ def interrupt_callback():
 ##    print("Usage: python demo.py 1st.model 2nd.model")
 ##    sys.exit(-1)
 
-npr = PixelRing()
-npr.chase(Color(0, 0, 255))
+# npr = PixelRing()
+# npr.chase(Color(0, 0, 255))
 gassist = Assistant()
 
 
